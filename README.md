@@ -1,7 +1,23 @@
 # NewViewPager
 Splash库，简单设置显示图片和文字，就可以实现Splash页面，支持多种切换页面模式
 
+Step 1. Add the JitPack repository to your build file
 
+gradle
+Add it in your root build.gradle at the end of repositories:
+
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+
+Step 2. Add the dependency
+
+	dependencies {
+	        compile 'com.github.Tomuchy:NewViewPager:V1.0'
+	}
 
 eg：
 实例代码，在首个Activity里添加如下代码
@@ -45,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
          */
         NewSplash.setBtnBackground(normal, pressed, "tuichu");
 
-        //设置动画模式  默认值 0 为默认动画
+        //设置动画模式  默认值 0 为默认动画  值有 0、1、2、3
         NewSplash.setAnimalStype(3);
         Intent intent = new Intent();
         intent.setClass(this, NewSplash.class);
