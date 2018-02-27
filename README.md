@@ -35,35 +35,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    private ArrayList<Bitmap> bmps = new ArrayList<>();
-
     private void initSplash() {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.indicator1);
-        Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.mipmap.indicator2);
-        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.mipmap.indicator3);
-        bmps.add(bitmap);
-        bmps.add(bitmap1);
-        bmps.add(bitmap2);
-        //必须设置  否则在splash界面 点击返回键时，会出现异常
+        //用于或许关联moudle的资源文件   必须设置  否则在splash界面 点击返回键时，会出现异常。
         NewSplash.setRootActivity(MainActivity.this);
-        //设置图片
-        NewSplash.setShowData(bmps);
-
-        Drawable normal = getResources().getDrawable(R.drawable.shape_btn_normal);
-        Drawable pressed = getResources().getDrawable(R.drawable.shape_btn_pressed);
-        //设置最后按钮样式和文字
-        /**
-         * 设置按钮样式
-         *
-         * @param normal  正常状态样式
-         * @param pressed 点击状态样式
-         * @param text1   显示文字
-         */
-        NewSplash.setBtnBackground(normal, pressed, "tuichu");
-
-        //设置动画模式  默认值 0 为默认动画  值有 0、1、2、3
-        NewSplash.setAnimalStype(3);
+        //设置动画模式  默认值 0 为默认动画
+        NewSplash.setBasicData("mipmap", "drawable", "textName", 1);
+        String textName = "ssss";
+        ArrayList<String> imgList = new ArrayList<>();
+        imgList.add("indicator1");
+        imgList.add("indicator2");
+        imgList.add("indicator3");
+        ArrayList<String> bgList = new ArrayList<>();
+        bgList.add("shape_btn_normal");
+        bgList.add("shape_btn_pressed");
         Intent intent = new Intent();
+        intent.putStringArrayListExtra("mipmap",imgList);
+        intent.putStringArrayListExtra("drawable",bgList);
+        intent.putExtra("textName", textName);
         intent.setClass(this, NewSplash.class);
         startActivity(intent);
     }

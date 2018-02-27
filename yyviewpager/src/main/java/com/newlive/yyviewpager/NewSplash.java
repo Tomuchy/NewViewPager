@@ -2,16 +2,10 @@ package com.newlive.yyviewpager;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -34,12 +28,12 @@ import java.util.ArrayList;
 
 public class NewSplash extends AppCompatActivity {
 
-    private static String packetName;
     public static boolean firstState = false;
+    public static Activity rootActivity;
     private ViewPager mViewpager;
     private PagerAdapter pagerAdapter;
-    private final float MINSCALE = 0.75f;
-    static ArrayList<Bitmap> bitmaps = new ArrayList<>();
+    ArrayList<Integer> btmIdList = new ArrayList<>();
+    ArrayList<Integer> bgIdList = new ArrayList<>();
     static int type = 0;
     private final int MAXTOTATION = 20;
     private LinearLayout mPointsContant;
@@ -47,35 +41,33 @@ public class NewSplash extends AppCompatActivity {
     private int pointDistance;
     private ImageView mLightPoint;
     private Button mBtn;
-    private ArrayList<String> bmps;
-    public static Drawable btnNormal;
-    public static Drawable btnPressed;
     public static String text;
-    public static Activity rootActivity;
+    public static String imgSrc;
+    public static String bgSrc;
+    private String btnName;
 
-    public static void setShowData(ArrayList<Bitmap> bmps) {
-        bitmaps = bmps;
-    }
-
-    public static void setAnimalStype(int types) {
-        type = types;
+    /**
+     * 用于获取关联moudle的资源文件  必须设置
+     *
+     * @param activity
+     */
+    public static void setRootActivity(Activity activity) {
+        rootActivity = activity;
     }
 
     /**
-     * 设置按钮样式
+     * 设置各种资源的文件夹名称、按钮名称、动画类型
      *
-     * @param normal  正常状态样式
-     * @param pressed 点击状态样式
-     * @param text1   显示文字
+     * @param imgRootSrc 显示图片的文件夹名称
+     * @param bgRootSrc  按钮点击效果
+     * @param textName   按钮文字
+     * @param types      动画类型  eg：0,1,2,3
      */
-    public static void setBtnBackground(@Nullable Drawable normal, @Nullable Drawable pressed, @Nullable String text1) {
-        btnNormal = normal;
-        btnPressed = pressed;
-        text = text1;
-    }
-
-    public static void setRootActivity(Activity activity) {
-        rootActivity = activity;
+    public static void setBasicData(String imgRootSrc, @Nullable String bgRootSrc, @Nullable String textName, int types) {
+        imgSrc = imgRootSrc;
+        type = types;
+        bgSrc = bgRootSrc;
+        text = textName;
     }
 
     @Override
@@ -83,19 +75,28 @@ public class NewSplash extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_yyviewpager);
-//        Intent intent = getIntent();
-//        bmps = intent.getStringArrayListExtra("bmps");
-
+//        获取各种资源的ID集合
+        Intent intent = getIntent();
+        btnName = intent.getStringExtra(text);
+        ArrayList<String> imgList = intent.getStringArrayListExtra(imgSrc);
+        ArrayList<String> bgList = intent.getStringArrayListExtra(bgSrc);
+        for (int i = 0; i < imgList.size(); i++) {
+            btmIdList.add(getResources().getIdentifier(imgList.get(i), imgSrc, rootActivity.getPackageName()));
+        }
+        for (int i = 0; i < bgList.size(); i++) {
+            bgIdList.add(getResources().getIdentifier(bgList.get(i), bgSrc, rootActivity.getPackageName()));
+        }
         initData();
         initView();
         initPoint();
+
     }
 
     private void initData() {
         pagerAdapter = new PagerAdapter() {
             @Override
             public int getCount() {
-                return bitmaps.size();
+                return btmIdList.size();
             }
 
             @Override
@@ -103,14 +104,11 @@ public class NewSplash extends AppCompatActivity {
                 return view == object;
             }
 
-            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
+
                 ImageView image = new ImageView(NewSplash.this);
-                Drawable bitmapDrawable = new BitmapDrawable(bitmaps.get(position));
-                image.setImageBitmap(bitmaps.get(position));
-//                image.setImageResource(Integer.parseInt(packetName + bmps.get(position)));
-                image.setBackground(bitmapDrawable);
+                image.setBackgroundResource(btmIdList.get(position));
                 container.addView(image);
                 return image;
             }
@@ -139,7 +137,7 @@ public class NewSplash extends AppCompatActivity {
         mPointsContant.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (bitmaps.size() == 0) {
+                if (btmIdList.size() == 0) {
                     pointDistance = 0;
                 } else {
                     pointDistance = mPointsContant.getChildAt(1).getLeft() - mPointsContant.getChildAt(0).getLeft();
@@ -156,7 +154,7 @@ public class NewSplash extends AppCompatActivity {
                 RelativeLayout.LayoutParams relaParams = (RelativeLayout.LayoutParams) mLightPoint.getLayoutParams();
                 relaParams.leftMargin = (int) moveDistance;
                 mLightPoint.setLayoutParams(relaParams);
-                if (position == bitmaps.size() - 1) {
+                if (position == btmIdList.size() - 1) {
                     mBtn.setVisibility(View.VISIBLE);
                 } else {
                     mBtn.setVisibility(View.GONE);
@@ -188,20 +186,20 @@ public class NewSplash extends AppCompatActivity {
 
     private void initBtn() {
         StateListDrawable s = new StateListDrawable();
-        if (btnNormal == null) {
+        if (bgIdList.get(0) == null) {
             Drawable drawable = getResources().getDrawable(R.drawable.shape_btn_normal);
             s.addState(new int[]{-android.R.attr.state_pressed}, drawable);
         } else {
-            s.addState(new int[]{-android.R.attr.state_pressed}, btnNormal);
+            s.addState(new int[]{-android.R.attr.state_pressed}, getResources().getDrawable(bgIdList.get(0)));
         }
-        if (btnPressed == null) {
+        if (bgIdList.get(1) == null) {
             Drawable drawable1 = getResources().getDrawable(R.drawable.shape_btn_pressed);
             s.addState(new int[]{android.R.attr.state_pressed}, drawable1);
         } else {
-            s.addState(new int[]{android.R.attr.state_pressed}, btnPressed);
+            s.addState(new int[]{android.R.attr.state_pressed}, getResources().getDrawable(bgIdList.get(1)));
         }
         if (!TextUtils.isEmpty(text)) {
-            mBtn.setText(text);
+            mBtn.setText(btnName);
         }
 
         mBtn.setBackgroundDrawable(s);
@@ -253,10 +251,10 @@ public class NewSplash extends AppCompatActivity {
         pointList = new ArrayList<>();
         LinearLayout.LayoutParams contentLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         contentLayoutParams.setMargins(0, 0, 40, 0);
-        for (int i = 0; i < bitmaps.size(); i++) {
+        for (int i = 0; i < btmIdList.size(); i++) {
             ImageView iv = new ImageView(NewSplash.this);
             iv.setImageResource(R.drawable.shape_point_gray);
-            if (i != bitmaps.size() - 1) {
+            if (i != btmIdList.size() - 1) {
                 mPointsContant.addView(iv, contentLayoutParams);
             } else {
                 mPointsContant.addView(iv);
@@ -265,16 +263,10 @@ public class NewSplash extends AppCompatActivity {
         }
     }
 
-    public static void setPacketName(String packetName1) {
-        packetName = packetName1;
-
-    }
-
     @Override
     public void onBackPressed() {
 //        在此页面点击返回按钮，则强制退出app
         exit();
-//        super.onBackPressed();
     }
 
     private long exitTime;
