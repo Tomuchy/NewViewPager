@@ -16,7 +16,7 @@ Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        compile 'com.github.Tomuchy:NewViewPager:V1.0'
+	        compile 'com.github.Tomuchy:NewViewPager:V2.0'
 	}
 
 eg：
